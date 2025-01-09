@@ -1,0 +1,11 @@
+)ATTR ON                                                                        
+)TITLE Support for z/OS Connect OpenAPI 3 Servers                               
+!Support for z/OS Connect OpenAPI 3 Servers                                     
+                                                                                
+   &G$PNAME 17.0 now supports monitoring of z/OS Connect                        
+   OpenAPI 3 servers. This support is provided with PTF                         
+   LU15234. To read more information about this PTF,                            
+)LINKCMD PTFS                                                                   
+   see the\PTFS`command.                                                        
+                                                                                
+)ATTR OFF                                                                       

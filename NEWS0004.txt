@@ -1,0 +1,29 @@
+)ATTR ON                                                                        
+)TITLE Upcoming SYSVIEW Sessions at MTE Conference                              
+!Upcoming SYSVIEW Sessions at MTE Conference                                    
+                                                                                
+)LINK    * OVERVIEW                                                             
+)LINK    * SESSIONS                                                             
+   \Overview`                                                                   
+   \Sessions`                                                                   
+                                                                                
+)LABEL   OVERVIEW                                                               
+!-------------------------------------------------------------------------------
+!Overview`                                                                      
+                                                                                
+   The Broadcom MTE conference will be held on 03/25/2025 - 03/28/2025 in       
+   Dallas, Texas.                                                               
+                                                                                
+)LABEL   SESSIONS                                                               
+!-------------------------------------------------------------------------------
+!Sessions`                                                                      
+                                                                                
+   Here are a list of &G$PNAME sessions at MTE:                                 
+                                                                                
+   - What's New in SYSVIEW                                                      
+     This session will discuss latest updates to SYSVIEW.                       
+                                                                                
+   - Mainframe Essentials: Software Risk Assessment                             
+     This session will cover the exciting capabilities of                       
+     SYSVIEW's Software Risk Assessment feature.                                
+)ATTR OFF                                                                       

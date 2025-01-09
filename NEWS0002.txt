@@ -1,0 +1,239 @@
+)ATTR ON                                                                        
+)TITLE Configuring PTF SECINT CVSS Information                                  
+!Configuring PTF SECINT CVSS Information                                        
+                                                                                
+)LINK    * OVERVIEW                                                             
+)LINK    * SYNTAX                                                               
+)LINK    * DEFAULTV                                                             
+)LINK    * RETRIEVAL                                                            
+)LINK    * DOWNLOAD                                                             
+)LINK    * BRDCMSEC                                                             
+   \Overview`                                                                   
+   \Syntax`                                                                     
+   \Default Values`                                                             
+   \Retrieval Method Considerations`                                            
+   \Broadcom CVSS CSV File Download`                                            
+   \Broadcom Secure Download Certificate`                                       
+                                                                                
+)LABEL   OVERVIEW                                                               
+!-------------------------------------------------------------------------------
+!Overview`                                                                      
+)LINKCMD LIBVIEW XMLLIB SVWXCVSS                                                
+                                                                                
+   The\SVWXCVSS`xmllib member is a JSON file used to configure the methods of   
+   retrieval for security and integrity PTF CVSS and CVE information. This      
+   information is contained in a CSV file. This information is used by          
+)LINKCMD PTFCVSS                                                                
+   &G$PNAME's Software Risk Assessment feature, including the\PTFCVSS`command.  
+                                                                                
+)LABEL   SYNTAX                                                                 
+!-------------------------------------------------------------------------------
+!Syntax`                                                                        
+                                                                                
+   The SVWXCVSS member is formatted as JSON and follows standard JSON syntax    
+   rules.                                                                       
+                                                                                
+   The SVWXCVSS member must be saved using EBCDIC codepage 1047.                
+                                                                                
+   The format of SVWXCVSS is as follows:                                        
+                                                                                
+   {                                                                            
+      "Vendor": "vendor",                                                       
+      "Method": "method",                                                       
+      "Value": "value",                                                         
+      "Enabled": enabled                                                        
+   }                                                                            
+                                                                                
+!  Keyword    Description                                                       
+!  -------    ------------------------------------------------------------------
+   Vendor     Specifies the name of the mainframe software vendor for the       
+              security and integrity PTF CVSS CSV file that you want to         
+              retrieve.                                                         
+                                                                                
+              Maximum length: 64 characters                                     
+                                                                                
+   Method     The method used to retrieve the security and integrity PTF CVSS   
+              information.                                                      
+                                                                                
+              Valid methods include:                                            
+              - DSN                                                             
+              - PATH                                                            
+                                                                                
+              For more information about each method, see the section titled    
+)LINK    * RETRIEVAL                                                            
+             \Retrieval Method Considerations.`                                 
+                                                                                
+   Value      The associated value for the specified method of retrieval.       
+                                                                                
+              Maximum length: 255 characters                                    
+                                                                                
+              If the DSN method is specified, this field contains a partitioned 
+              dataset name of the security and integrity CVSS CSV file.         
+                                                                                
+              If the PATH method is specified, this field contains a USS file   
+              path to the security and integrity CVSS CSV file.                 
+                                                                                
+    Enabled   A boolean value that specifies whether to retrieve the security   
+              and integrity PTF CVSS CSV file for the vendor. The value for     
+              the Enabled keyword must be true or false in lowercase with no    
+              surrounding quotes.                                               
+                                                                                
+)LABEL   DEFAULTV                                                               
+!-------------------------------------------------------------------------------
+!Default Values`                                                                
+                                                                                
+   By default, SVWXCVSS is in a disabled state and specifies the DSN retrieval  
+   method to read the Broadcom security and integrity CVSS CSV file from a      
+   dataset. This default member needs to be copied to a site or user dataset    
+   and modified to include the dataset or USS file name of the CVSS CSV file by 
+   using the Value keyword. For more information on how to download the CVSS    
+)LINK    * DOWNLOAD                                                             
+   CSV file, see\Broadcom CVSS CSV File Download.`                              
+                                                                                
+   In order for the CVSS CSV file retrieval to be enabled, the default member   
+   also must be updated to specify true for the Enabled keyword.                
+                                                                                
+   The following is the default SVWXCVSS member:                                
+                                                                                
+   {                                                                            
+      "Vendors": [                                                              
+         {                                                                      
+               "Vendor": "Broadcom",                                            
+               "Method": "DSN",                                                 
+               "Value": "",                                                     
+               "Enabled": false                                                 
+         }                                                                      
+      ]                                                                         
+   }                                                                            
+                                                                                
+)LABEL   RETRIEVAL                                                              
+!-------------------------------------------------------------------------------
+!Retrieval Method Considerations`                                               
+                                                                                
+   For each of the retrieval methods that can be used to retrieve security      
+   and integrity CVSS information, review the following considerations.         
+                                                                                
+)LABEL   DSNCONS                                                                
+!  DSN                                                                          
+                                                                                
+   This retrieval method specifies that the security and integrity CVSS CSV     
+   file is to be read from a partitioned dataset (PDS). Ensure that both the    
+   user id running &G$PNAME and users within &G$PNAME have read access to the   
+   dataset.                                                                     
+                                                                                
+   The dataset must be saved using EBCDIC codepage 1047.                        
+                                                                                
+)LABEL   PATHCONS                                                               
+!  PATH                                                                         
+                                                                                
+   This retrieval method specifies that the security and integrity CVSS CSV     
+   file is to be read from a file residing in USS. Ensure that both the user    
+   id running &G$PNAME and users within &G$PNAME have read access to the file.  
+                                                                                
+   The maximum USS file size that will be processed is 100MB.                   
+                                                                                
+   The file must be saved using EBCDIC codepage 1047.                           
+                                                                                
+)LABEL   DOWNLOAD                                                               
+!-------------------------------------------------------------------------------
+!Broadcom CVSS CSV File Download`                                               
+                                                                                
+   The Broadcom security and integrity CVSS CSV file can be downloaded from the 
+   following location:                                                          
+                                                                                
+   https://ftp.broadcom.com/pub/MSD/SECINT/secint.csv                           
+                                                                                
+   In order for &G$PNAME to read this file, it must be made available in a      
+   dataset or USS file. One way to accomplish this is by using FTP to           
+   download the file to z/OS. The following sample JCL can be used to           
+   download the CSV file via FTP:                                               
+                                                                                
+   <jobcard>                                                                    
+   //FTPCVSS  EXEC  PGM=FTP,REGION=4096K,TIME=1440                              
+   //SYSTCPD  DD DSN=<dsn>,DISP=SHR                                             
+   //CEEOPTS  DD *                                                              
+   ENVAR(GSK_PROTOCOL_TLSV1_2=ON)                                               
+   /*                                                                           
+   //SYSFTPD  DD *                                                              
+   EXTENSIONS         AUTH_TLS                                                  
+   FWFRIENDLY         TRUE                                                      
+   KEYRING            <keyring>                                                 
+   SECURE_DATACONN    PRIVATE                                                   
+   SECURE_FTP         REQUIRED                                                  
+   SECURE_MECHANISM   TLS                                                       
+   SECUREIMPLICITZOS  FALSE                                                     
+   TLSMECHANISM       FTP                                                       
+   SECUREIMPLICITZOS  FALSE                                                     
+   TLSMECHANISM       FTP                                                       
+   TLSRFCLEVEL        RFC4217                                                   
+   DEBUG SEC                                                                    
+   /*                                                                           
+   //SYSPRINT DD SYSOUT=*                                                       
+   //OUTPUT DD SYSOUT=*                                                         
+   //INPUT DD *                                                                 
+   ftp.broadcom.com 21                                                          
+   <username>                                                                   
+   <password>                                                                   
+   cd /pub/MSD/SECINT                                                           
+   locsite LR=1024 REC=VB BLOCKSI=27998                                         
+   locsite PRI=5 SEC=5 CY                                                       
+   get secint.csv '<file>' (REPLACE                                             
+   quit                                                                         
+                                                                                
+   The sample JCL needs to be updated to include the following:                 
+                                                                                
+   1. <jobcard> should be replaced with a valid job card.                       
+                                                                                
+   2. Update the SYSTCPD DD to specify the location of the TCP/IP configuration 
+      dataset.                                                                  
+                                                                                
+   3. <keyring> should be replaced with a valid SAF keyring name that contains  
+      the certificate used to communicate with the HTTPS server. The keyring    
+      should be specified using the following format:                           
+                                                                                
+      Format: userid/keyring                                                    
+      Maximum length userid: 8 characters                                       
+      Maximum length keyring: 237 characters                                    
+                                                                                
+)LINK    * BRDCMSEC                                                             
+      For more information, see\Broadcom Secure Download Certificate.`          
+                                                                                
+   4. <username> should be replaced with a valid Broadcom Support username.     
+                                                                                
+   5. <password> should be replaced with a valid Broadcom Support password.     
+                                                                                
+   6. <file> should be replaced with the name of a partitioned dataset (PDS)    
+      or USS file path where the CSV file should be saved. This is the file     
+      that &G$PNAME's SVWXCVSS member should be configured to read.             
+                                                                                
+!-------------------------------------------------------------------------------
+)LABEL   BRDCMSEC                                                               
+!Broadcom Secure Download Certificate`                                          
+                                                                                
+   To prevent SSL handshake failures when downloading the Broadcom security and 
+   integrity CVSS CSV file from z/OS, the correct certificate needs to be       
+   downloaded and made available in a SAF keyring. Follow these steps to enable 
+   the secure download:                                                         
+                                                                                
+      1. Download the certificate to your local computer from the following     
+         URL:                                                                   
+                                                                                
+         https://ftpdocs.broadcom.com/cadocs/0/zosmf/digi-root.crt              
+                                                                                
+      2. Upload the certificate as text data to your z/OS system in RECFM=VB    
+         and LRECL=84 format. If you use FTP, use the following FTP commands    
+         to avoid truncation:                                                   
+                                                                                
+         ASCII                                                                  
+         QUOTE SITE WRAP LRECL=84 RECFM=VB                                      
+         PUT your_PC_file_name 'your.zos.dataset.name'                          
+         quit                                                                   
+                                                                                
+)LINKCMD KEYRINGS                                                               
+      3. Add the certificate to a SAF keyring. See the\KEYRINGS`command to      
+         display a list of defined keyrings.                                    
+                                                                                
+   When downloading the CSV file from z/OS using HTTPS or FTP, the keyring      
+   name where the certificate was added needs to be specified. For sample JCL   
+)LINK    * DOWNLOAD                                                             
+   to download the file via FTP, see\Broadcom CVSS CSV File Download.`          

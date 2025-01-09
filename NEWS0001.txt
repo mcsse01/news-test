@@ -1,0 +1,236 @@
+)ATTR ON                                                                        
+)TITLE Submitting SMP/E RECEIVE ORDER Requests                                  
+!Submitting SMP/E RECEIVE ORDER Requests                                        
+                                                                                
+)LINK    * OVERVIEW                                                             
+)LINK    * CONFIG                                                               
+)LINK    * USAGE                                                                
+)LINK    * AUTO                                                                 
+   \Overview`                                                                   
+   \Configuration`                                                              
+   \Usage`                                                                      
+   \Automation`                                                                 
+                                                                                
+)LABEL   OVERVIEW                                                               
+!-------------------------------------------------------------------------------
+!Overview`                                                                      
+                                                                                
+   When downloading maintenance for SMP/E managed products, the process of      
+   downloading individual PTFs to keep products up to date can be time          
+   consuming. SMP/E provides RECEIVE ORDER requests that simplify and speed up  
+   the process of obtaining maintenance. RECEIVE ORDER requests are used to     
+   connect directly to mainframe software vendor sites and download all         
+   available maintenance or HOLDDATA. For any mainframe software vendor that    
+   supports RECEIVE ORDERs, requests can be submitted using line commands on    
+)LINKCMD PTFLIST                                                                
+   the\PTFLIST`command.                                                         
+                                                                                
+)LABEL   CONFIG                                                                 
+!-------------------------------------------------------------------------------
+!Configuration`                                                                 
+                                                                                
+   &G$PNAME uses JCL to submit SMP/E RECEIVE ORDER requests. The JCL contains   
+   vendor specific information, so different JCL needs to be used for each      
+   vendor. To simplify the creation and configuration of vendor specific JCL    
+   members, &G$PNAME provides JCL template members for mainframe software       
+   vendors that support SMP/E RECEIVE ORDERs.                                   
+                                                                                
+)LINKCMD LIBVIEW TEMPLATE SVWROBRM                                              
+   - Broadcom:         \SVWROBRM`                                               
+)LINKCMD LIBVIEW TEMPLATE SVWROBMC                                              
+   - BMC:              \SVWROBMC`                                               
+)LINKCMD LIBVIEW TEMPLATE SVWROIBM                                              
+   - IBM:              \SVWROIBM`                                               
+)LINKCMD LIBVIEW TEMPLATE SVWROPHX                                              
+   - Phoenix Software: \SVWROPHX`                                               
+                                                                                
+   To associate which JCL member should be used when submitting a RECEIVE       
+   ORDER request for a given product, specify the JCL member name in the        
+)LINKCMD LIBVIEW PARMLIB SVWXPTFL                                               
+  \CNM4BPRM(SVWXPTFL)`member using the RECEIVEORDER keyword. The JCL member     
+   specified by the RECEIVEORDER keyword must be defined in &G$PNAME's          
+)LINKCMD TEMPLATE                                                               
+  \CNM4BTMP`library. Users can also create their own JCL to be used by          
+   &G$PNAME..                                                                   
+                                                                                
+   For example, to specify the SVWROBRM member should be used for RECEIVE ORDER 
+   requests for &G$PNAME, use the following syntax:                             
+                                                                                
+   DEFINE                                                                       
+      PRODUCT      '&G$PNAME'                                                   
+      DESCRIPTION  '&G$XNAME &G$ReleaseVVRMM'                                   
+      FMID         &G$FMID                                                      
+      CSI          &SYSTEM_CSI                                                  
+      XMLLIB       &SYSTEM_XMLLIB                                               
+      LOADLIB      &SYSTEM_LOADLIB                                              
+      RECEIVEORDER 'SVWROBRM'                                                   
+   ENDDEFINE                                                                    
+                                                                                
+   The value that is defined to the RECEIVEORDER KEYWORD in SVWXPTFL displays   
+   in the ReceiveOrder field on the PTFLIST command.                            
+                                                                                
+   There are several places in the template JCL that &G$PNAME provides that     
+   need to be configured manually so that RECEIVE ORDER requests complete       
+   successfully.                                                                
+                                                                                
+   1. The first line of each template JCL member starts with: )JOBCARD. When    
+      the JCL is submitted, the first line is replaced by the job card that is  
+      configured in &G$PNAME for the user that submitted the JCL. The job card  
+)LINKCMD JOBCARD                                                                
+      that is defined to SYSVIEW for a given user can be modified using the     
+     \JOBCARD`command. Ensure that valid job cards are configured for all users 
+      that submit RECEIVE ORDERs, including the user id that is running         
+      &G$PNAME.. To update the job card for the user id that is running         
+      &G$PNAME, a SYSVIEW administrator issues the PROFILE SWITCH <user-id>     
+      command and then modifies the job card using the JOBCARD command.         
+                                                                                
+      Users can also copy the template JCL member into their USER CNM4BTMP      
+      library and replace the )JOBCARD statement with a valid job card.         
+                                                                                
+   2. Each template JCL member contains an <ORDERSERVER> definition. For        
+      example, the SVWROBRM member (by default) specifies the following         
+      parameters:                                                               
+                                                                                
+      <ORDERSERVER                                                              
+        url="https://eapi.broadcom.com/receiveorder"                            
+        inventory="all"                                                         
+        keyring="SMPERING"                                                      
+        certificate="SMPE Client Certificate">                                  
+      </ORDERSERVER>                                                            
+                                                                                
+      The keyring keyword must specify the keyring name that contains the user  
+      certificate that is required to access the RECEIVE ORDER server. The      
+      certificate keyword must specify the label of this user certificate.      
+                                                                                
+   3. Each template JCL member contains a <CLIENT> definition. For example,     
+      the SVWROBRM member (by default) specifies the following parameters:      
+                                                                                
+      <CLIENT                                                                   
+        downloadmethod="https"                                                  
+        javahome="/usr/lpp/java/J8.0_64"                                        
+        classpath="/usr/lpp/smp/classes"                                        
+        javadebugoptions="-Dcom.ibm.smp.debug=severe -showversion">             
+      </CLIENT>                                                                 
+                                                                                
+      The javahome keyword must specify a valid path to one of the following    
+      Java installations or their logical successors:                           
+                                                                                
+      - IBM 31-bit SDK for z/OS, Java Technology Edition Version 6 (5655-R31)   
+      - IBM 64-bit SDK for z/OS, Java Technology Edition Version 6 (5655-R32)   
+                                                                                
+      The classpath keyword must specify a valid path to the SMP/E Java         
+      application classes that are supplied when SMP/E is installed. By default,
+      the classes reside in the /usr/lpp/smp/classes directory.                 
+                                                                                
+      The javadebugoptions keyword can be updated to include any valid Java     
+      option. The options can be used to debug and trace problems with RECEIVE  
+      ORDER requests.                                                           
+                                                                                
+   4. If a proxy server is required to connect to the RECEIVE ORDER server,     
+      an <HTTPPROXY> definition can be added to the <CLIENT> definition in the  
+      template JCL. The <HTTPPROXY> definition has the following syntax:        
+                                                                                
+      <HTTPPROXY host="local.httpproxy.com"                                     
+                 user="userid" pw="password" port="8080"> </HTTPPROXY>          
+                                                                                
+)LABEL   USAGE                                                                  
+!-------------------------------------------------------------------------------
+!Usage`                                                                         
+                                                                                
+)LINKCMD PTFLIST                                                                
+   To submit SMP/E RECEIVE ORDER requests, use the\PTFLIST`command. The PTFLIST 
+   command contains line commands that let you submit RECEIVE ORDER requests    
+   for different content:                                                       
+                                                                                
+   1. RECeive  - Include all available PTFs                                     
+   2. RECVAll  - Include all available PTFs                                     
+   3. RECVHold - Include all enhanced HOLDDATA                                  
+                                                                                
+   These line commands submit the JCL template member specified by the          
+   ReceiveOrder field on PTFLIST on the row where the line command was entered. 
+                                                                                
+   The line commands define two &G$PNAME variables that are substituted in the  
+   template JCL:                                                                
+                                                                                
+   1. PTFLCSI     - Contains the value of the CSI field on the PTFLIST command  
+                    on the row where the line command was entered. This         
+                    variable is used in the SMPCSI DD in the template JCL to    
+                    specify the SMP/E CSI that should be used.                  
+                                                                                
+   2. PTFLCONTENT - Specifies the RECEIVE ORDER content. This variable is used  
+                    in the CONTENT keyword in the RECEIVE ORDER statement in    
+                    the template JCL. Valid content values include:             
+                                                                                
+                    - ALL                                                       
+                    - APARS                                                     
+                    - CRITICAL                                                  
+                    - HOLDDATA                                                  
+                    - PTFS                                                      
+                    - RECOMMENDED                                               
+                                                                                
+)LINKCMD CSIORDER                                                               
+   After the RECEIVE ORDER is submitted, the\CSIORDER`command can be used to    
+   display the status of the request.                                           
+                                                                                
+)LABEL   AUTO                                                                   
+!-------------------------------------------------------------------------------
+!Automation`                                                                    
+                                                                                
+   By scheduling and automating SMP/E RECEIVE ORDER requests, mainframe         
+   software can be kept up to date with the latest and most important           
+   maintenance. Scheduling and automating requests also helps to ensure that    
+   you implement a standardized and consistent approach to downloading          
+   maintenance for software across z/OS systems.                                
+                                                                                
+   To assist with the automation of SMP/E RECEIVE ORDER requests, the           
+)LINKCMD LIBVIEW PARMLIB SVWXPTFL                                               
+   RECEIVEGROUP keyword can be used in the\CNM4BPRM(SVWXPTFL)`member. This      
+   keyword associates the entry with a group name. The value is displayed by    
+   the ReceiveGroup field on the PTFLIST command. An automated process can then 
+   use this field to easily submit RECEIVE ORDERs for each SMP/E product in a   
+   given group.                                                                 
+                                                                                
+   For example, to specify a RECEIVE ORDER group name of WEEKLY for &G$PNAME,   
+   use the following syntax in the SVWXPTFL member:                             
+                                                                                
+   DEFINE                                                                       
+      PRODUCT      '&G$PNAME'                                                   
+      DESCRIPTION  '&G$XNAME &G$ReleaseVVRMM'                                   
+      FMID         &G$FMID                                                      
+      CSI          &SYSTEM_CSI                                                  
+      XMLLIB       &SYSTEM_XMLLIB                                               
+      LOADLIB      &SYSTEM_LOADLIB                                              
+      RECEIVEORDER 'SVWROBRM'                                                   
+      RECEIVEGROUP 'WEEKLY'                                                     
+   ENDDEFINE                                                                    
+                                                                                
+   As a starting point, &G$PNAME provides a sample schedule event in the        
+)LINKCMD LIBVIEW PARMLIB SCHEDULE                                               
+  \CNM4BPRM(SCHEDULE)`member that can be used to submit RECEIVE ORDER requests  
+   for a group of products on a timed schedule. The sample event is disabled    
+   by default and resembles the following syntax:                               
+                                                                                
+   DEFINE RECEIVE-ORDER DESC 'Sample weekly scheduled RECEIVE ORDER   '         
+         GROUP      CAPTURE                                                     
+         TYPE       RECUR                                                       
+         NODAYS                                                                 
+         SATURDAYS                                                              
+         DATEBEGIN  *         DATEEND *                                         
+         TIMEBEGIN  2AM       TIMEEND *                                         
+         EVERY      1DAY                                                        
+         LIMIT      NOLIMIT                                                     
+         FUNCTION   CAPTURE                                                     
+         PARMS      'GSVXRCVO WEEKLY'                                           
+   ENDDEFINE                                                                    
+                                                                                
+   The sample event passes a RECEIVE ORDER group name, WEEKLY in this sample,   
+)LINKCMD LIBVIEW CAPLIB GSVXRCVO                                                
+   to an event capture member that is defined in\CNM4BCAP(GSVXRCVO).` The       
+   GSVXRCVO capture member issues the PTFLIST command, filters the display to   
+   only show entries with a matching RECEIVE ORDER group name in the            
+   ReceiveGroup field, and then issues the RECeive line command on each row on  
+   the filtered PTFLIST display. This causes RECEIVE ORDER requests to be       
+   submitted for all entries on the PTFLIST command that have a matching        
+   RECEIVE ORDER group name.                                                    
+                                                                                
+)ATTR OFF                                                                       

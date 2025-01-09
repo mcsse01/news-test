@@ -1,0 +1,29 @@
+)ATTR ON                                                                        
+)TITLE Attend SYSVIEW Product Showcase                                          
+!Attend SYSVIEW Product Showcase                                                
+                                                                                
+)LINK    * OVERVIEW                                                             
+)LINK    * AGENDA                                                               
+   \Overview`                                                                   
+   \Agenda`                                                                     
+                                                                                
+)LABEL   OVERVIEW                                                               
+!-------------------------------------------------------------------------------
+!Overview`                                                                      
+                                                                                
+   The &G$PNAME team will be hosting a virtual Product Showcase to discuss      
+   recently released product enhancements on 12/25/2024. You can register for   
+   the product showcase here: sysview.broadcom.com/productshowcase              
+                                                                                
+)LABEL   AGENDA                                                                 
+!-------------------------------------------------------------------------------
+!Agenda`                                                                        
+                                                                                
+   Following is a list of topics that will be discussed during the Product      
+   Showcase:                                                                    
+                                                                                
+   - z/OS Connect OpenAPI 3 Support                                             
+   - New TCP/IP VIPA Commands                                                   
+   - JVM Component Enhancements                                                 
+                                                                                
+)ATTR OFF                                                                       

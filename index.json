@@ -1,0 +1,35 @@
+{
+    "last-update":"2024/12/25",
+    "members":[
+        {
+	        "category":"Announcement",	
+            "title":"Upcoming SYSVIEW Sessions at MTE Conference",
+            "member":"NEWS0004",
+            "date":"2024/10/22"
+        },
+        {
+	        "category":"Announcement",	
+            "title":"Attend SYSVIEW Product Showcase",
+            "member":"NEWS0003",
+            "date":"2024/12/25"
+        },
+        {
+	        "category":"Enhancement",	
+            "title":"Support for z/OS Connect OpenAPI 3 Servers",
+            "member":"NEWS0005",
+            "date":"2024/11/27"
+        },
+        {
+	        "category":"Tip",	
+            "title":"Configuring PTF SECINT CVSS Information",
+            "member":"NEWS0002",
+            "date":"2023/07/19"
+        },
+        {
+	        "category":"Tip",	
+            "title":"Submitting SMP/E RECEIVE ORDER Requests",
+            "member":"NEWS0001",
+            "date":"2024/03/12"
+        }
+    ]
+}
